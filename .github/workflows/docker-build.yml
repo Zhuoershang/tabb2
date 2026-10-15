@@ -17,12 +17,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 跨架构构建必需：QEMU 模拟 + Buildx 多平台支持
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      # 将仓库名转为小写（Zhuoershang/tabb2 -> zhuoershang/tabb2）
+      - name: Lowercase repository name
+        id: repo_lower
+        run: echo "image_repo=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -38,5 +42,5 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ steps.repo_lower.outputs.image_repo }}:latest
+            ghcr.io/${{ steps.repo_lower.outputs.image_repo }}:${{ github.sha }}
